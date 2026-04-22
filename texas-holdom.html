@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>德州扑克</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: white;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .game-area {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .pot-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255,215,0,0.1);
+            border-radius: 8px;
+        }
+
+        .pot-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .pot-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .community-cards {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            min-height: 80px;
+            align-items: center;
+        }
+
+        .card {
+            width: 50px;
+            height: 72px;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .card.red {
+            color: #e94560;
+        }
+
+        .card.hidden {
+            background: linear-gradient(135deg, #e94560 0%, #0f3460 100%);
+            color: transparent;
+        }
+
+        .player-area {
+            margin-bottom: 20px;
+        }
+
+        .player-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .player-name {
+            font-size: 14px;
+        }
+
+        .player-chips {
+            font-size: 14px;
+            color: #ffd700;
+        }
+
+        .player-hand {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .hand-result {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,215,0,0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #ffd700;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-fold {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-call {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-raise {
+            background: #e94560;
+            color: white;
+        }
+
+        .btn-check {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .game-message {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .new-game-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #e94560 0%, #0f3460 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                width: 42px;
+                height: 60px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="location.href='index.html'">← 返回</button>
+            <h1>♠️♥️ 德州扑克</h1>
+            <div></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">你的筹码</div>
+                <div class="stat-value" id="playerChips">10000</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">对手筹码</div>
+                <div class="stat-value" id="opponentChips">10000</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">胜率</div>
+                <div class="stat-value" id="winRate">0%</div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="pot-info">
+                <div class="pot-label">底池</div>
+                <div class="pot-value" id="pot">0</div>
+            </div>
+
+            <div class="game-message" id="gameMessage">点击"开始游戏"开始</div>
+
+            <!-- 对手手牌 -->
+            <div class="player-area">
+                <div class="player-info">
+                    <span class="player-name">🤖 AI对手</span>
+                    <span class="player-chips" id="opponentBet">下注: 0</span>
+                </div>
+                <div class="player-hand" id="opponentHand">
+                    <div class="card hidden"></div>
+                    <div class="card hidden"></div>
+                </div>
+            </div>
+
+            <!-- 公共牌 -->
+            <div class="community-cards" id="communityCards">
+                <span style="opacity:0.5">公共牌区</span>
+            </div>
+
+            <!-- 玩家手牌 -->
+            <div class="player-area">
+                <div class="hand-result" id="handResult"></div>
+                <div class="player-info">
+                    <span class="player-name">👤 你</span>
+                    <span class="player-chips" id="playerBet">下注: 0</span>
+                </div>
+                <div class="player-hand" id="playerHand">
+                    <div class="card hidden"></div>
+                    <div class="card hidden"></div>
+                </div>
+            </div>
+
+            <div class="buttons" id="actionButtons">
+                <button class="btn btn-fold" id="btnFold" onclick="fold()">弃牌</button>
+                <button class="btn btn-check" id="btnCheck" onclick="check()">看牌</button>
+                <button class="btn btn-call" id="btnCall" onclick="call()">跟注</button>
+                <button class="btn btn-raise" id="btnRaise" onclick="raise()">加注</button>
+            </div>
+
+            <button class="new-game-btn" id="newGameBtn" onclick="startNewGame()">开始游戏</button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        
+        let deck = [];
+        let playerHand = [];
+        let opponentHand = [];
+        let communityCards = [];
+        let pot = 0;
+        let playerChips = 10000;
+        let opponentChips = 10000;
+        let playerBet = 0;
+        let opponentBet = 0;
+        let currentBet = 0;
+        let gameStage = 0; // 0: preflop, 1: flop, 2: turn, 3: river, 4: showdown
+        let wins = 0;
+        let totalGames = 0;
+        let gameOver = false;
+
+        // 初始化
+        function initDeck() {
+            deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push({ suit, value, symbol: suit + value });
+                }
+            }
+            shuffleDeck();
+        }
+
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        function dealCard() {
+            return deck.pop();
+        }
+
+        function startNewGame() {
+            if (playerChips <= 0 || opponentChips <= 0) {
+                playerChips = 10000;
+                opponentChips = 10000;
+            }
+            
+            initDeck();
+            playerHand = [dealCard(), dealCard()];
+            opponentHand = [dealCard(), dealCard()];
+            communityCards = [];
+            pot = 0;
+            playerBet = 0;
+            opponentBet = 0;
+            currentBet = 100;
+            gameStage = 0;
+            gameOver = false;
+
+            // 强制暗牌
+            playerBet = currentBet;
+            opponentBet = currentBet;
+            pot = playerBet + opponentBet;
+            playerChips -= playerBet;
+            opponentChips -= opponentBet;
+
+            updateUI();
+            document.getElementById('newGameBtn').classList.add('hidden');
+            document.getElementById('actionButtons').classList.remove('hidden');
+            document.getElementById('gameMessage').textContent = '公共牌: 翻牌前 - 选择你的行动';
+            document.getElementById('handResult').textContent = '';
+            document.getElementById('opponentHand').innerHTML = '<div class="card hidden"></div><div class="card hidden"></div>';
+
+            // AI决策
+            setTimeout(aiAction, 500);
+        }
+
+        function updateUI() {
+            document.getElementById('playerChips').textContent = playerChips;
+            document.getElementById('opponentChips').textContent = opponentChips;
+            document.getElementById('pot').textContent = pot;
+            document.getElementById('playerBet').textContent = '下注: ' + playerBet;
+            document.getElementById('opponentBet').textContent = '下注: ' + opponentBet;
+            
+            const winRate = totalGames > 0 ? Math.round(wins / totalGames * 100) + '%' : '0%';
+            document.getElementById('winRate').textContent = winRate;
+
+            // 玩家手牌
+            const playerHandEl = document.getElementById('playerHand');
+            playerHandEl.innerHTML = playerHand.map(card => 
+                `<div class="card ${['♥','♦'].includes(card.suit) ? 'red' : ''}">${card.symbol}</div>`
+            ).join('');
+
+            // 公共牌
+            const communityEl = document.getElementById('communityCards');
+            if (communityCards.length > 0) {
+                communityEl.innerHTML = communityCards.map(card => 
+                    `<div class="card ${['♥','♦'].includes(card.suit) ? 'red' : ''}">${card.symbol}</div>`
+                ).join('');
+            } else {
+                communityEl.innerHTML = '<span style="opacity:0.5">公共牌区</span>';
+            }
+        }
+
+        function fold() {
+            if (gameOver) return;
+            opponentChips += pot;
+            gameOver = true;
+            endGame('你弃牌了');
+        }
+
+        function check() {
+            if (gameOver) return;
+            if (playerBet < currentBet) {
+                playerBet = currentBet;
+                playerChips -= currentBet;
+                pot += currentBet;
+            }
+            nextStage();
+        }
+
+        function call() {
+            if (gameOver) return;
+            const callAmount = currentBet - playerBet;
+            playerChips -= callAmount;
+            playerBet += callAmount;
+            pot += callAmount;
+            nextStage();
+        }
+
+        function raise() {
+            if (gameOver) return;
+            const raiseAmount = currentBet * 2;
+            const totalBet = currentBet + raiseAmount;
+            playerChips -= totalBet;
+            playerBet += totalBet;
+            currentBet = playerBet;
+            pot += totalBet;
+            nextStage();
+        }
+
+        function nextStage() {
+            gameStage++;
+            
+            if (gameStage === 1) {
+                // Flop
+                communityCards = [dealCard(), dealCard(), dealCard()];
+                currentBet = Math.max(playerBet, opponentBet);
+                playerBet = currentBet;
+                opponentBet = currentBet;
+                document.getElementById('gameMessage').textContent = '公共牌: 翻牌圈 - 选择你的行动';
+            } else if (gameStage === 2) {
+                // Turn
+                communityCards.push(dealCard());
+                currentBet = Math.max(playerBet, opponentBet);
+                playerBet = currentBet;
+                opponentBet = currentBet;
+                document.getElementById('gameMessage').textContent = '公共牌: 转牌圈 - 选择你的行动';
+            } else if (gameStage === 3) {
+                // River
+                communityCards.push(dealCard());
+                currentBet = Math.max(playerBet, opponentBet);
+                playerBet = currentBet;
+                opponentBet = currentBet;
+                document.getElementById('gameMessage').textContent = '公共牌: 河牌圈 - 选择你的行动';
+            } else {
+                // Showdown
+                showdown();
+                return;
+            }
+            
+            updateUI();
+            setTimeout(aiAction, 500);
+        }
+
+        function aiAction() {
+            if (gameOver || gameStage >= 4) return;
+            
+            const action = Math.random();
+            if (action < 0.3) {
+                // fold
+                playerChips += pot;
+                gameOver = true;
+                endGame('AI弃牌，你赢了！');
+            } else if (action < 0.7) {
+                // call
+                const callAmount = currentBet - opponentBet;
+                if (callAmount > 0) {
+                    opponentChips -= callAmount;
+                    opponentBet += callAmount;
+                    pot += callAmount;
+                }
+                if (gameStage < 3) {
+                    nextStage();
+                } else {
+                    showdown();
+                }
+            } else {
+                // raise
+                const raiseAmount = currentBet;
+                opponentChips -= raiseAmount;
+                opponentBet += raiseAmount;
+                currentBet = opponentBet;
+                pot += raiseAmount;
+                updateUI();
+                document.getElementById('gameMessage').textContent = 'AI加注！选择你的行动';
+            }
+            updateUI();
+        }
+
+        function showdown() {
+            gameOver = true;
+            
+            // 显示对手手牌
+            const opponentHandEl = document.getElementById('opponentHand');
+            opponentHandEl.innerHTML = opponentHand.map(card => 
+                `<div class="card ${['♥','♦'].includes(card.suit) ? 'red' : ''}">${card.symbol}</div>`
+            ).join('');
+
+            // 比较牌型
+            const playerResult = evaluateHand([...playerHand, ...communityCards]);
+            const opponentResult = evaluateHand([...opponentHand, ...communityCards]);
+
+            let resultText = '';
+            if (playerResult.rank > opponentResult.rank) {
+                playerChips += pot;
+                wins++;
+                totalGames++;
+                resultText = `你赢了！你的牌型: ${playerResult.name}`;
+            } else if (playerResult.rank < opponentResult.rank) {
+                opponentChips += pot;
+                totalGames++;
+                resultText = `AI赢了！AI的牌型: ${opponentResult.name}`;
+            } else {
+                // 平局
+                playerChips += Math.floor(pot / 2);
+                opponentChips += Math.floor(pot / 2);
+                wins++;
+                totalGames++;
+                resultText = `平局！`;
+            }
+
+            document.getElementById('handResult').textContent = playerResult.name;
+            endGame(resultText);
+        }
+
+        function endGame(message) {
+            document.getElementById('gameMessage').textContent = message;
+            document.getElementById('actionButtons').classList.add('hidden');
+            document.getElementById('newGameBtn').classList.remove('hidden');
+            updateUI();
+        }
+
+        function evaluateHand(cards) {
+            // 简化版牌型评估
+            const values = cards.map(c => c.value);
+            const suits = cards.map(c => c.suit);
+            
+            // 计算每种牌型的得分
+            const counts = {};
+            values.forEach(v => counts[v] = (counts[v] || 0) + 1);
+            
+            const countsArr = Object.values(counts).sort((a,b) => b-a);
+            
+            let rank = 0;
+            let name = '高牌';
+            
+            if (countsArr[0] === 4) {
+                rank = 8;
+                name = '四条';
+            } else if (countsArr[0] === 3 && countsArr[1] === 2) {
+                rank = 7;
+                name = '葫芦';
+            } else if (countsArr[0] === 3) {
+                rank = 4;
+                name = '三条';
+            } else if (countsArr[0] === 2 && countsArr[1] === 2) {
+                rank = 3;
+                name = '两对';
+            } else if (countsArr[0] === 2) {
+                rank = 2;
+                name = '一对';
+            }
+            
+            return { rank, name };
+        }
+
+        // 初始显示
+        updateUI();
+    </script>
+</body>
+</html>
