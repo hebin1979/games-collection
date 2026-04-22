@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>21点</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: white;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .game-area {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .player-area {
+            margin-bottom: 25px;
+        }
+
+        .player-name {
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .player-score {
+            color: #ffd700;
+            font-weight: 600;
+        }
+
+        .cards {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            width: 60px;
+            height: 84px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .card.red {
+            color: #e94560;
+        }
+
+        .card.face-down {
+            background: linear-gradient(135deg, #e94560 0%, #0f3460 100%);
+            color: transparent;
+        }
+
+        .card-value {
+            font-size: 18px;
+        }
+
+        .card-suit {
+            font-size: 24px;
+        }
+
+        .dealer-area {
+            margin-bottom: 30px;
+        }
+
+        .result-area {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .result-win {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .result-lose {
+            background: rgba(233, 69, 96, 0.2);
+            color: #e94560;
+        }
+
+        .result-push {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-hit {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-stand {
+            background: #e94560;
+            color: white;
+        }
+
+        .btn-double {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-new {
+            background: linear-gradient(135deg, #007bff 0%, #0f3460 100%);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .game-message {
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .bet-info {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255,215,0,0.1);
+            border-radius: 12px;
+        }
+
+        .bet-label {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .bet-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="location.href='index.html'">← 返回</button>
+            <h1>🃏 21点</h1>
+            <div></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">你的筹码</div>
+                <div class="stat-value" id="playerChips">10000</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">当前下注</div>
+                <div class="stat-value" id="currentBet">100</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">胜率</div>
+                <div class="stat-value" id="winRate">0%</div>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="bet-info">
+                <div class="bet-label">当前下注</div>
+                <div class="bet-value" id="betDisplay">100</div>
+            </div>
+
+            <div class="game-message" id="gameMessage">点击"开始新游戏"开始</div>
+
+            <!-- 庄家区域 -->
+            <div class="player-area dealer-area">
+                <div class="player-name">
+                    <span>🎰 庄家</span>
+                    <span class="player-score" id="dealerScore">-</span>
+                </div>
+                <div class="cards" id="dealerCards">
+                    <span style="opacity:0.5">等待发牌...</span>
+                </div>
+            </div>
+
+            <!-- 玩家区域 -->
+            <div class="player-area">
+                <div class="player-name">
+                    <span>👤 你</span>
+                    <span class="player-score" id="playerScore">-</span>
+                </div>
+                <div class="cards" id="playerCards">
+                    <span style="opacity:0.5">等待发牌...</span>
+                </div>
+            </div>
+
+            <div class="result-area hidden" id="resultArea"></div>
+
+            <div class="buttons" id="actionButtons">
+                <button class="btn btn-hit" id="btnHit" onclick="hit()">要牌</button>
+                <button class="btn btn-stand" id="btnStand" onclick="stand()">停牌</button>
+                <button class="btn btn-double" id="btnDouble" onclick="doubleDown()">加倍</button>
+            </div>
+
+            <button class="btn btn-new" id="newGameBtn" onclick="startNewGame()">开始新游戏</button>
+        </div>
+    </div>
+
+    <script>
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        
+        let deck = [];
+        let playerCards = [];
+        let dealerCards = [];
+        let playerChips = 10000;
+        let currentBet = 100;
+        let wins = 0;
+        let totalGames = 0;
+        let gameOver = false;
+        let canDouble = true;
+
+        function initDeck() {
+            deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push({ suit, value });
+                }
+            }
+            shuffleDeck();
+        }
+
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        function dealCard() {
+            return deck.pop();
+        }
+
+        function getCardValue(card) {
+            if (['J', 'Q', 'K'].includes(card.value)) return 10;
+            if (card.value === 'A') return 11;
+            return parseInt(card.value);
+        }
+
+        function calculateScore(cards) {
+            let score = 0;
+            let aces = 0;
+            
+            for (let card of cards) {
+                score += getCardValue(card);
+                if (card.value === 'A') aces++;
+            }
+            
+            while (score > 21 && aces > 0) {
+                score -= 10;
+                aces--;
+            }
+            
+            return score;
+        }
+
+        function startNewGame() {
+            if (playerChips < currentBet) {
+                playerChips = 10000;
+                currentBet = 100;
+            }
+            
+            initDeck();
+            playerCards = [dealCard(), dealCard()];
+            dealerCards = [dealCard(), dealCard()];
+            gameOver = false;
+            canDouble = true;
+
+            playerChips -= currentBet;
+
+            updateUI();
+            document.getElementById('newGameBtn').classList.add('hidden');
+            document.getElementById('actionButtons').classList.remove('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+
+            // 检查BJ
+            const playerScore = calculateScore(playerCards);
+            const dealerScore = calculateScore(dealerCards);
+
+            if (playerScore === 21) {
+                if (dealerScore === 21) {
+                    endGame('push', '平局！庄家也是21点');
+                } else {
+                    endGame('win', '黑杰克！ 你赢了！');
+                }
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('playerChips').textContent = playerChips;
+            document.getElementById('currentBet').textContent = currentBet;
+            document.getElementById('betDisplay').textContent = currentBet;
+            
+            const winRate = totalGames > 0 ? Math.round(wins / totalGames * 100) + '%' : '0%';
+            document.getElementById('winRate').textContent = winRate;
+
+            // 玩家手牌
+            const playerEl = document.getElementById('playerCards');
+            if (playerCards.length > 0) {
+                playerEl.innerHTML = playerCards.map(card => 
+                    `<div class="card ${['♥','♦'].includes(card.suit) ? 'red' : ''}">
+                        <div class="card-value">${card.value}</div>
+                        <div class="card-suit">${card.suit}</div>
+                    </div>`
+                ).join('');
+                document.getElementById('playerScore').textContent = calculateScore(playerCards);
+            }
+
+            // 庄家手牌
+            const dealerEl = document.getElementById('dealerCards');
+            if (dealerCards.length > 0) {
+                if (gameOver) {
+                    dealerEl.innerHTML = dealerCards.map(card => 
+                        `<div class="card ${['♥','♦'].includes(card.suit) ? 'red' : ''}">
+                            <div class="card-value">${card.value}</div>
+                            <div class="card-suit">${card.suit}</div>
+                        </div>`
+                    ).join('');
+                    document.getElementById('dealerScore').textContent = calculateScore(dealerCards);
+                } else {
+                    dealerEl.innerHTML = `<div class="card face-down"></div>` + 
+                        dealerCards.slice(1).map(card => 
+                            `<div class="card ${['♥','♦'].includes(card.suit) ? 'red' : ''}">
+                                <div class="card-value">${card.value}</div>
+                                <div class="card-suit">${card.suit}</div>
+                            </div>`
+                        ).join('');
+                    document.getElementById('dealerScore').textContent = '?';
+                }
+            }
+
+            // 加倍按钮
+            document.getElementById('btnDouble').disabled = !canDouble || playerChips < currentBet;
+        }
+
+        function hit() {
+            if (gameOver) return;
+            
+            playerCards.push(dealCard());
+            canDouble = false;
+            
+            const score = calculateScore(playerCards);
+            updateUI();
+
+            if (score > 21) {
+                endGame('lose', '爆牌了！ 你输了');
+            }
+        }
+
+        function stand() {
+            if (gameOver) return;
+            dealerPlay();
+        }
+
+        function doubleDown() {
+            if (gameOver || !canDouble || playerChips < currentBet) return;
+            
+            playerChips -= currentBet;
+            currentBet *= 2;
+            canDouble = false;
+            
+            playerCards.push(dealCard());
+            updateUI();
+
+            const score = calculateScore(playerCards);
+            if (score > 21) {
+                endGame('lose', '爆牌了！ 你输了');
+            } else {
+                dealerPlay();
+            }
+        }
+
+        function dealerPlay() {
+            let dealerScore = calculateScore(dealerCards);
+            
+            // 庄家必须17点以上
+            while (dealerScore < 17) {
+                dealerCards.push(dealCard());
+                dealerScore = calculateScore(dealerCards);
+            }
+
+            const playerScore = calculateScore(playerCards);
+            gameOver = true;
+            updateUI();
+
+            if (dealerScore > 21) {
+                endGame('win', '庄家爆牌！你赢了！');
+            } else if (playerScore > dealerScore) {
+                endGame('win', '你赢了！');
+            } else if (playerScore < dealerScore) {
+                endGame('lose', '庄家赢了');
+            } else {
+                endGame('push', '平局！');
+            }
+        }
+
+        function endGame(result, message) {
+            gameOver = true;
+            
+            const resultArea = document.getElementById('resultArea');
+            resultArea.textContent = message;
+            resultArea.className = 'result-area';
+            
+            if (result === 'win') {
+                resultArea.classList.add('result-win');
+                playerChips += currentBet * 2;
+                wins++;
+                totalGames++;
+            } else if (result === 'lose') {
+                resultArea.classList.add('result-lose');
+                totalGames++;
+            } else {
+                resultArea.classList.add('result-push');
+                playerChips += currentBet;
+                wins++;
+                totalGames++;
+            }
+
+            document.getElementById('actionButtons').classList.add('hidden');
+            document.getElementById('newGameBtn').classList.remove('hidden');
+            updateUI();
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
