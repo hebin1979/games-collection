@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小游戏合集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.8;
+        }
+
+        .game-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .game-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .game-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .game-desc {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .coming-soon {
+            background: rgba(255, 193, 7, 0.2);
+            border-color: rgba(255, 193, 7, 0.3);
+        }
+
+        .coming-soon .game-icon {
+            filter: grayscale(1);
+            opacity: 0.5;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.6;
+            margin-top: 40px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 小游戏合集</h1>
+            <p>经典棋牌游戏，网页版随时畅玩</p>
+        </div>
+
+        <div class="game-list">
+            <div class="game-card" onclick="location.href='texas-holdom.html'">
+                <div class="game-icon">♠️♥️</div>
+                <div class="game-name">德州扑克</div>
+                <div class="game-desc">经典德州扑克，与AI对战</div>
+            </div>
+
+            <div class="game-card" onclick="location.href='blackjack.html'">
+                <div class="game-icon">🃏</div>
+                <div class="game-name">21点</div>
+                <div class="game-desc">经典 blackjack，挑战庄家</div>
+            </div>
+
+            <div class="game-card" onclick="location.href='match3.html'">
+                <div class="game-icon">💎</div>
+                <div class="game-name">宝石消除</div>
+                <div class="game-desc">经典三消游戏，挑战高分</div>
+            </div>
+
+            <div class="game-card coming-soon">
+                <div class="game-icon">🎲</div>
+                <div class="game-name">更多游戏</div>
+                <div class="game-desc">即将上线...</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 游戏合集 | 仅供娱乐</p>
+        </div>
+    </div>
+</body>
+</html>
